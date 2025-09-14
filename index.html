@@ -442,7 +442,10 @@
             window.addEventListener('resize', resizeCanvas);
 
             function createExplosion(x, y) {
-                const particleCount = 50 + Math.floor(Math.random() * 30);
+                const isDesktop = window.innerWidth > 768;
+                const baseCount = isDesktop ? 40 : 50;
+                const extraCount = isDesktop ? 20 : 30;
+                const particleCount = baseCount + Math.floor(Math.random() * extraCount);
                 for (let i = 0; i < particleCount; i++) {
                     let p = particlePool.length ? particlePool.pop() : {};
                     p.x = x;
