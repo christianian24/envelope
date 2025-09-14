@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Envelope</title>
+    <link href="https://fonts.googleapis.com/css2?family=Handlee&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-env: #fd46a2;      /* Main envelope body color */
+            --color-env2: #ff69b4;     /* Envelope shading & button color */
+            --color-flap: #ff69b4;     /* Envelope flap color */
+            --color-bg: #ffb6c1;       /* Unused background color variable */
+            --color-heart: #f7175a;    /* Floating hearts color */
+            --color-sparkle: #fff0f5;  /* Floating sparkles color */
+            --wax-red: #f72f40;       /* Wax seal color */
+        }
+
+        #envelope {
+            position: relative;
+            width: 280px;
+            height: 180px;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            margin: 0 auto;
+            top: 300px;
+            background-color: var(--color-flap);
+            box-shadow: 0 4px 20px rgba(0,0,0,.1);
+            cursor: pointer;
+        }
+
+        .front {
+            position: absolute;
+            width: 0;
+            height: 0;
+            z-index: 3;
+        }
+
+        .flap {
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-bottom: 82px solid transparent;
+            border-top: 98px solid var(--color-flap);
+            transform-origin: top;
+            pointer-events: none;
+        }
+
+        .pocket {
+            border-left: 140px solid var(--color-env);
+            border-right: 140px solid var(--color-env);
+            border-bottom: 90px solid var(--color-env2);
+            border-top: 90px solid transparent;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+        }
+
+        .letter {
+            position: relative;
+            background-color: #e0d9dd;
+            width: 90%;
+            margin: 0 auto;
+            height: 90%;
+            top: 5%;
+            border-radius: 6px;
+            box-shadow: 0 2px 26px rgba(0,0,0,.08);
+            padding: 15px;
+            box-sizing: border-box;
+            /* A pseudo-element for a subtle gradient overlay on the letter */
+        }
+
+        .letter:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-image: linear-gradient(180deg, 
+                rgba(255,255,255,0.00) 25%, 
+                rgba(255,231,236,0.70) 55%, 
+                rgba(255,231,236,1.00) 100%);
+        }
+
+        .message {
+            position: relative;
+            z-index: 2;
+            font-family: 'Handlee', cursive;
+            color: #e43c66;
+            text-align: center;
+            line-height: 1;
+            padding-top: 0px;
+        }
+
+        .message p {
+            margin: 10px 0;
+            font-size: 1.8em;
+            text-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .envlope-wrapper {
+            height: 380px;
+            margin-top: 50px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .open .flap {
+            transform: rotateX(180deg);
+            transition: transform 0.4s ease, z-index 0.6s;
+            z-index: 1;
+        }
+
+        .close .flap {
+            transform: rotateX(0deg);
+            transition: transform 0.4s 0.6s ease, z-index 1s;
+            z-index: 5;
+        }
+
+        .close .letter {
+            transform: translateY(0px); 
+            transition: transform 0.4s ease, z-index 1s;
+            z-index: 1;
+        }
+
+        .open .letter {
+            transform: translateY(-70px) rotate(-2deg);
+            transition: transform 0.4s 0.6s ease, z-index 0.6s;
+            z-index: 2;
+        }
+
+        
+
+        .letter-corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #eeb3c5;
+            border-radius: 5px;
+            z-index: 3;
+        }
+        .corner-tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .corner-br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+        .hearts, .sparkles {
+            position: absolute;
+            top: 90px;
+            left: 0;
+            right: 0;
+            z-index: 2;
+        }
+
+        .heart, .sparkle {
+            position: absolute;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        /* This is a classic CSS trick to create a heart shape using two rotated pseudo-elements. */
+        .heart:before,
+        .heart:after {
+            content: "";
+            position: absolute;
+            left: 25px;
+            top: 0;
+            width: 25px;
+            height: 40px;
+            background: var(--color-heart);
+            border-radius: 25px 25px 0 0;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+
+        .heart:after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        .sparkle {
+            width: 8px;
+            height: 8px;
+            background: var(--color-sparkle);
+            border-radius: 50%;
+            animation: sparkleTwinkle 1s infinite;
+        }
+
+        .close .heart,
+        .close .sparkle {
+            opacity: 0;
+            animation: none;
+        }
+
+        /* Animation classes for individual hearts (a) and sparkles (s) */
+        .a1 { left: 20%; transform: scale(0.6); animation: slideUp 4s linear infinite, sideSway 2s ease-in-out infinite alternate; }
+        .a2 { left: 55%; animation: slideUp 5s linear infinite, sideSway 4s ease-in-out infinite alternate; }
+        .a3 { left: 10%; transform: scale(0.8); animation: slideUp 7s linear infinite, sideSway 2s ease-in-out infinite alternate; }
+
+        .s1 { left: 30%; animation: sparkleUp 3s linear infinite; }
+        .s2 { left: 60%; animation: sparkleUp 4s linear infinite; }
+        .s3 { left: 45%; animation: sparkleUp 5s linear infinite; }
+
+        @keyframes slideUp {
+            0% { top: 0; }
+            100% { top: -600px; }
+        }
+
+        @keyframes sideSway {
+            0% { margin-left: 0; }
+            50% { margin-left: 50px; }
+            100% { margin-left: 0; }
+        }
+
+        @keyframes sparkleUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-500px) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes sparkleTwinkle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+
+        body {
+            /* --- Replace the URL below with the link to your photo --- */
+            background-image: url('bg.jpg');
+            
+            background-size: cover; /* Ensures the image covers the whole screen */
+            background-position: center; /* Centers the image */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-attachment: fixed; /* Keeps the background fixed during scroll */
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .reset {
+            display: flex;
+            justify-content: center;
+            margin-top: 120px;
+        }
+
+        .reset button {
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background-color: var(--color-env);
+            border: 2px solid var(--color-env2);
+            border-radius: 20px;
+            color: white;
+            padding: 12px 25px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            font-family: Arial, sans-serif;
+        }
+
+        .reset button:hover {
+            background-color: var(--color-env2);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 7px 25px rgba(0,0,0,0.2);
+        }
+
+        #envelope:hover {
+            transform: translateY(-2px) scale(1.01);
+            transition: transform 0.25s ease;
+        }
+
+        .avatar-badge {
+            position: absolute;
+            top: -230px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92px;
+            height: 92px;
+            border-radius: 16px;
+            background: transparent;
+            z-index: 6;
+            animation: avatarFloat 4s ease-in-out infinite;
+        }
+        /* Creates a blurred, glowing border effect behind the avatar */
+        .avatar-badge:before {
+            content: "";
+            position: absolute;
+            inset: -3px;
+            border-radius: 20px;
+            background: transparent;
+            z-index: -1;
+            filter: blur(0.5px);
+        }
+        .avatar-badge img {
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            object-fit: cover;
+            display: block;
+        }
+
+        @keyframes avatarFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-4px); }
+        }
+
+        .open .avatar-badge {
+            transform: translateX(-50%) translateY(-10px) scale(1.04);
+            transition: transform 0.4s ease;
+        }
+
+        .wax-seal {
+            position: absolute;
+            right: 14px;
+            bottom: 12px;
+            width: 22px;
+            height: 22px;
+            background: radial-gradient(circle at 30% 30%, #d24a4a, var(--wax-red));
+            border-radius: 50%;
+            box-shadow: 0 2px 0 rgba(0,0,0,.08) inset, 0 2px 6px rgba(0,0,0,.12);
+            z-index: 4;
+        }
+        .wax-seal:after {
+            content: "C";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -52%);
+            font-size: 12px;
+            color: #fff2f2;
+        }
+
+        .reset button {
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.3px;
+        }
+
+        .message p {
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            /* Hide desktop buttons on mobile; interaction is via tapping the envelope */
+            .reset {
+                display: none;
+            }
+        }
+
+        /* Fireworks canvas overlay */
+        #canvas {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none; /* shown when open */
+            z-index: 0;
+            pointer-events: none; /* don't block clicking the envelope/buttons */
+        }
+        .envlope-wrapper, .reset {
+            position: relative;
+            z-index: 1; /* ensure above the canvas */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="envlope-wrapper">
+        <div id="envelope" class="close">
+            <div class="avatar-badge" title="Your GIF avatar">
+                <img src="https://media.tenor.com/cWrVaANWYxEAAAAi/peach-goma-peach-and-goma.gif" alt="Avatar GIF">
+            </div>
+            <div class="wax-seal"></div>
+            <div class="front flap"></div>
+            <div class="front pocket"></div>
+            <div class="letter">
+                <div class="letter-corner corner-tl"></div>
+                <div class="letter-corner corner-br"></div>
+                <div class="message">
+                    <p>I LIKE YOU</p>
+                    <p></p>
+                </div>
+            </div>
+            <div class="hearts">
+                <div class="heart a1"></div>
+                <div class="heart a2"></div>
+                <div class="heart a3"></div>
+            </div>
+            <div class="sparkles">
+                <div class="sparkle s1"></div>
+                <div class="sparkle s2"></div>
+                <div class="sparkle s3"></div>
+            </div>
+        </div>
+    </div>
+    <div class="reset">
+        <button id="open">Open Envelope</button>
+        <button id="reset">Close Envelope</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const envelope = $('#envelope');
+            const btnOpen = $("#open");
+            const btnReset = $("#reset");
+
+            // Fireworks setup
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const particles = [];
+            const particlePool = [];
+            const colors = [ // New color palette to match the envelope theme
+                '255, 20, 147',   // Deep Pink
+                '255, 105, 180',  // Hot Pink
+                '255, 182, 193',  // Light Pink
+                '255, 192, 203',  // Pink
+                '255, 240, 245'   // Lavender Blush
+            ];
+            let rafId = null; // To store the requestAnimationFrame ID
+            let intervalId = null; // To store the setInterval ID for launchers
+            let running = false;
+
+            // Pre-render glow images for each color
+            function createGlow(color) {
+                const off = document.createElement('canvas');
+                off.width = off.height = 40;
+                const gctx = off.getContext('2d');
+                const gradient = gctx.createRadialGradient(20,20,0,20,20,10);
+                gradient.addColorStop(0, `rgba(${color},1)`);
+                gradient.addColorStop(1, `rgba(${color},0)`);
+                gctx.fillStyle = gradient;
+                gctx.fillRect(0,0,40,40);
+                return off;
+            }
+            const glowCache = colors.map(c => createGlow(c));
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            function createExplosion(x, y) {
+                const particleCount = 50 + Math.floor(Math.random() * 30);
+                for (let i = 0; i < particleCount; i++) {
+                    let p = particlePool.length ? particlePool.pop() : {};
+                    p.x = x;
+                    p.y = y;
+                    p.prevX = x;
+                    p.prevY = y;
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 6 + 2;
+                    p.dx = Math.cos(angle) * speed;
+                    p.dy = Math.sin(angle) * speed;
+                    p.alpha = 1;
+                    p.colorIndex = Math.floor(Math.random() * colors.length);
+                    p.color = colors[p.colorIndex];
+                    p.gravity = 0.1;
+                    p.friction = 0.97;
+                    p.decay = Math.random() * 0.015 + 0.015;
+                    p.type = 'explosion';
+                    particles.push(p);
+                }
+            }
+
+            function createLauncher() {
+                let p = particlePool.length ? particlePool.pop() : {};
+                p.x = Math.random() * canvas.width;
+                p.y = canvas.height;
+                p.dx = Math.random() * 4 - 2; // slight horizontal drift
+                p.dy = -(Math.random() * 5 + 12); // strong upward velocity
+                p.colorIndex = Math.floor(Math.random() * colors.length);
+                p.color = colors[p.colorIndex];
+                p.gravity = 0.15;
+                p.type = 'launcher';
+                particles.push(p);
+            }
+
+            let lastTime = 0;
+            function animate(time = 0) {
+                if (!running) return;
+                if (time - lastTime < 16) { // ~60fps frame skip
+                    rafId = requestAnimationFrame(animate);
+                    return;
+                }
+                lastTime = time;
+
+                // Fade previous frame with destination-out for trails
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw particle trails in one batch path
+                ctx.globalCompositeOperation = 'lighter';
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
+                    if (p.type === 'explosion') {
+                        ctx.moveTo(p.prevX, p.prevY);
+                        ctx.lineTo(p.x, p.y);
+                    }
+                }
+                ctx.stroke();
+
+                // Draw glow images for explosion particles
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    if (p.type === 'launcher') {
+                        // Draw launcher as a white line with glow
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p.x, p.y - p.dy * 0.5);
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
+                        ctx.shadowColor = `rgba(${p.color}, 1)`;
+                        ctx.shadowBlur = 8;
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+
+                        // Update launcher position
+                        p.x += p.dx;
+                        p.y += p.dy;
+                        p.dy += p.gravity;
+
+                        // Explode at apex
+                        if (p.dy >= 0) {
+                            createExplosion(p.x, p.y);
+                            // Recycle launcher particle
+                            particlePool.push(particles[i]);
+                            particles[i] = particles[particles.length - 1];
+                            particles.pop();
+                        }
+                    } else {
+                        // Draw glow image for explosion particle
+                        ctx.globalAlpha = p.alpha;
+                        const glow = glowCache[p.colorIndex];
+                        ctx.drawImage(glow, p.x - 20, p.y - 20);
+                        ctx.globalAlpha = 1;
+
+                        // Update explosion particle
+                        p.prevX = p.x;
+                        p.prevY = p.y;
+                        p.x += p.dx;
+                        p.y += p.dy;
+                        p.dy += p.gravity;
+                        p.dx *= p.friction;
+                        p.dy *= p.friction;
+                        p.alpha -= p.decay;
+
+                        if (p.alpha <= 0) {
+                            // Recycle explosion particle
+                            particlePool.push(particles[i]);
+                            particles[i] = particles[particles.length - 1];
+                            particles.pop();
+                        }
+                    }
+                }
+
+                rafId = requestAnimationFrame(animate);
+            }
+
+            function startFireworks() {
+                if (running) return;
+                running = true;
+                canvas.style.display = 'block';
+
+                const isDesktop = window.innerWidth > 768;
+                const intervalTime = isDesktop ? 800 : 1200;
+                const intervalLaunchCount = 1;
+
+                animate();
+                intervalId = setInterval(() => {
+                    for (let i = 0; i < intervalLaunchCount; i++) {
+                        createLauncher();
+                    }
+                }, intervalTime);
+            }
+
+            function stopFireworks() {
+                running = false;
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+                if (intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+                }
+                particles.length = 0;
+                particlePool.length = 0;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                canvas.style.display = 'none';
+            }
+
+            envelope.on('click', function() {
+                if (envelope.hasClass('open')) {
+                    close();
+                } else {
+                    open();
+                }
+            });
+            btnOpen.on('click', open);
+            btnReset.on('click', close);
+
+            function open() {
+                envelope.removeClass("close").addClass("open");
+                startFireworks();
+            }
+
+            function close() {
+                envelope.removeClass("open").addClass("close");
+                stopFireworks();
+            }
+        });
+    </script>
+</body>
+</html>
