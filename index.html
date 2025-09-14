@@ -516,7 +516,7 @@
                         ctx.lineWidth = 2;
                         ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
                         ctx.shadowColor = `rgba(${p.color}, 1)`;
-                        ctx.shadowBlur = 8;
+                        ctx.shadowBlur = 4;
                         ctx.stroke();
                         ctx.shadowBlur = 0;
 
@@ -568,7 +568,7 @@
                 canvas.style.display = 'block';
 
                 const isDesktop = window.innerWidth > 768;
-                const intervalTime = isDesktop ? 800 : 1200;
+                const intervalTime = isDesktop ? 1200 : 1500;
                 const intervalLaunchCount = 1;
 
                 animate();
